@@ -8,10 +8,16 @@
 
 /* User may change these settings in order for the script to work as he wishes */
 var userSettings = {
-	model: "b",
-	maxWall: 2,
-	refreshTime: 100000, //in ms
-	nextVillageTime: 180000
+	refreshTime: Number, //in ms
+	nextVillageTime: Number
+}
+
+var modelSettings = {
+	model: String,
+	maxWall: Number,
+	maxDistance: Number,
+	fullResources: Boolean,
+	empytResources: Boolean
 }
 
 createSettingsForm();
@@ -46,11 +52,12 @@ function createSettingsForm() {
 				break;
 		}
 		var settForm = document.createElement("form");
-		settForm.setAttribute('name', model + 'FarmForm');
+		settForm.setAttribute('name', model + "FarmForm");
 		newDiv.appendChild(settForm);
 
 		var tableF = document.createElement("table");
-		tableF.setAttribute('class', 'vis');
+		tableF.setAttribute('class', "vis");
+		tableF.setAttribute('width', "100%");
 		settForm.appendChild(tableF);
 
 		var tableBody = document.createElement("tbody");
@@ -85,13 +92,42 @@ function createSettingsForm() {
 		wallImage.setAttribute('class',"");
 		wallTh.appendChild(wallImage);
 
+		var distTh = document.createElement("th");
+		distTh.setAttribute('style',"text-align:center");
+		distTh.setAttribute('width',"35");
+		tableRow1.appendChild(distTh);
+
+		var distImage = document.createElement("img");
+		distImage.setAttribute('src',"https://dspt.innogamescdn.com/asset/cf501e93/graphic/rechts.png");
+		distImage.setAttribute('class',"");
+		distTh.appendChild(distImage);
+
+		var fullResTh = document.createElement("th");
+		fullResTh.setAttribute('style',"text-align:center");
+		fullResTh.setAttribute('width',"35");
+		tableRow1.appendChild(fullResTh);
+
+		var fullResImage = document.createElement("img");
+		fullResImage.setAttribute('src',"https://dspt.innogamescdn.com/asset/cf501e93/graphic/max_loot/1.png");
+		fullResImage.setAttribute('class',"");
+		fullResTh.appendChild(fullResImage);
+
+		var emptyResTh = document.createElement("th");
+		emptyResTh.setAttribute('style',"text-align:center");
+		emptyResTh.setAttribute('width',"35");
+		tableRow1.appendChild(emptyResTh);
+
+		var emptyResImage = document.createElement("img");
+		emptyResImage.setAttribute('src',"https://dspt.innogamescdn.com/asset/cf501e93/graphic/max_loot/0.png");
+		emptyResImage.setAttribute('class',"");
+		emptyResTh.appendChild(emptyResImage);
 
 		// Create a button to save settings for each farm model
 
 		var saveIconTd = document.createElement("td");
 		saveIconTd.setAttribute('rowspan', "2");
-		saveIconTd.setAttribute('align', "center");
 		saveIconTd.setAttribute('width', "15%");
+		saveIconTd.setAttribute('align', "center");
 		tableRow1.appendChild(saveIconTd);
 
 		var saveIconDiv = document.createElement("div");
@@ -99,19 +135,61 @@ function createSettingsForm() {
 		saveIconTd.appendChild(saveIconDiv);
 
 		var saveIcon = document.createElement("input");
-		saveIcon.setAttribute('class',"button");
+		saveIcon.setAttribute('class',"btn");
 		//saveIcon.setAttribute('type',"submit");
 		saveIcon.setAttribute('value',"Guardar");
 		saveIconDiv.appendChild(saveIcon);
 
-		/*<td rowspan="2" width="15%" align="center">
-			<div class="vis_item">
-				<input class="btn" type="submit" value="Guardar">
-			</div>
-		</td>*/
+		// Row2
 
 		var tableRow2 = document.createElement("tr");
 		tableF.appendChild(tableRow2);
+
+		var wallTd = document.createElement("td");
+		wallTd.setAttribute('align',"center");
+		tableRow2.appendChild(wallTd);
+
+		var wallInput = document.createElement("input");
+		wallInput.setAttribute('type',"number");
+		wallInput.setAttribute('name',"maxWall");
+		wallInput.setAttribute('size',"3");
+		wallInput.setAttribute('value',"0");
+		wallTd.appendChild(wallInput);
+
+		var distTd = document.createElement("td");
+		distTd.setAttribute('align',"center");
+		tableRow2.appendChild(distTd);
+
+		var distInput = document.createElement("input");
+		distInput.setAttribute('type',"number");
+		distInput.setAttribute('name',"maxDistance");
+		distInput.setAttribute('size',"3");
+		distInput.setAttribute('value',"0");
+		distTd.appendChild(distInput);
+
+		var fullResTd = document.createElement("td");
+		fullResTd.setAttribute('align',"center");
+		tableRow2.appendChild(fullResTd);
+
+		var fullResInput = document.createElement("input");
+		fullResInput.setAttribute('type',"checkbox");
+		fullResInput.setAttribute('name',"fullResources");
+		fullResInput.setAttribute('size',"3");
+		fullResTd.appendChild(fullResInput);
+
+		var emptyResTd = document.createElement("td");
+		emptyResTd.setAttribute('align',"center");
+		tableRow2.appendChild(emptyResTd);
+
+		var emptyResInput = document.createElement("input");
+		emptyResInput.setAttribute('type',"checkbox");
+		emptyResInput.setAttribute('name',"fullResources");
+		emptyResInput.setAttribute('size',"3");
+		emptyResTd.appendChild(emptyResInput);
+
+		/*<td align="center">
+			<input type="text" name="spear" size="3" value="0">
+		</td>*/
 
 		/*var inp = document.createElement("input");
 		inp.setAttribute('type', "text");
