@@ -8,47 +8,55 @@
 
 /* User may change these settings in order for the script to work as he wishes */
 var farmSettings = {
-	refreshTime: Number, //in ms
-	nextVillageTime: Number
+	refreshTime: 1000000, //in ms
+	nextVillageTime: 100000,
+	timeBetweenAttacks: 300
 }
 
-var modelsSettings = [{}, {}, {}];
+run();
 
-initialize();
 //if (userSettings.maxWall = getCookie("maxWall")) document.farmForm.maxWall.value = userSettings.maxWall;
 
-function initialize() {
-	createSettingsForm();
-	createModelsSettings();
-	createCookies();
+function run() {
+	var modelsSettings = loadSettings();
+	createSettingsForm(modelsSettings);
+	startFarming(farmSettings, modelsSettings);
 }
 
 function createModelsSettings() {
+	var modelsSettings = [{}, {}, {}];
 	var i = 0;
 	for (i = 0; i < 3; i++) {
-		modelsSettings[i].model = String.fromCharCode(97+i);
-		modelsSettings[i].maxWall = -1;
-		modelsSettings[i].maxDistance = -1;
-		modelsSettings[i].fullResources = true;
+		modelsSettings[i].model = String.fromCharCode(97 + i);
+		modelsSettings[i].maxWall = 0;
+		modelsSettings[i].maxDistance = 0;
+		modelsSettings[i].fullResources = false;
 		modelsSettings[i].emptyResources = true;
 		modelsSettings[i].active = false;
 	}
+	return modelsSettings;
 }
 
 function loadSettings() {
-
-}
-
-function createCookies() {
-	var i = 0;
-	for (i = 0; i < 3; i++) {
-		if (getCookie("model_" + modelsSettings[i].model) == null) {
-			setCookie("model_" + modelsSettings[i].model, modelsSettings[i]);
-		}
+	var modelsSettings = getModelsSettings();
+	if (modelsSettings == null) {
+		console.log("Creating models settings!");
+		modelsSettings = createModelsSettings();
 	}
+	saveModelsSettings(modelsSettings);
+	return modelsSettings;
 }
 
-function createSettingsForm() {
+function saveModelsSettings(modelsSettings) {
+	localStorage.setItem('modelsSettings', JSON.stringify(modelsSettings));
+}
+
+function getModelsSettings() {
+	var settings = JSON.parse(localStorage.getItem('modelsSettings'));
+	return settings;
+}
+
+function createSettingsForm(modelsSettings) {
 	var assTable = document.getElementById('content_value'); //Get farm assistant main table
 	var assTitle = assTable.getElementsByTagName('h3')[0];
 
@@ -62,8 +70,9 @@ function createSettingsForm() {
 
 	var i;
 	for (i = 0; i < 3; i++) {
-		var model = String.fromCharCode(97+i);
-		
+		var modelSettings = modelsSettings[i];
+		var model = modelSettings.model;
+
 		var settForm = document.createElement("form");
 		settForm.setAttribute('name', model + "FarmForm");
 		newDiv.appendChild(settForm);
@@ -176,7 +185,7 @@ function createSettingsForm() {
 		wallInput.setAttribute('type', "number");
 		wallInput.setAttribute('name', "maxWall");
 		wallInput.setAttribute('size', "3");
-		wallInput.setAttribute('value', "0");
+		wallInput.setAttribute('value', modelSettings.maxWall);
 		wallTd.appendChild(wallInput);
 
 		var distTd = document.createElement("td");
@@ -187,7 +196,7 @@ function createSettingsForm() {
 		distInput.setAttribute('type', "number");
 		distInput.setAttribute('name', "maxDistance");
 		distInput.setAttribute('size', "3");
-		distInput.setAttribute('value', "0");
+		distInput.setAttribute('value', modelSettings.maxDistance);
 		distTd.appendChild(distInput);
 
 		var fullResTd = document.createElement("td");
@@ -198,6 +207,7 @@ function createSettingsForm() {
 		fullResInput.setAttribute('type', "checkbox");
 		fullResInput.setAttribute('name', "fullResources");
 		fullResInput.setAttribute('size', "3");
+		fullResInput.checked = modelSettings.fullResources;
 		fullResTd.appendChild(fullResInput);
 
 		var emptyResTd = document.createElement("td");
@@ -208,6 +218,7 @@ function createSettingsForm() {
 		emptyResInput.setAttribute('type', "checkbox");
 		emptyResInput.setAttribute('name', "fullResources");
 		emptyResInput.setAttribute('size', "3");
+		emptyResInput.checked = modelSettings.emptyResources;
 		emptyResTd.appendChild(emptyResInput);
 
 		var modelOnTd = document.createElement("td");
@@ -218,16 +229,62 @@ function createSettingsForm() {
 		modelOnInput.setAttribute('type', "checkbox");
 		modelOnInput.setAttribute('name', "fullResources");
 		modelOnInput.setAttribute('size', "3");
+		modelOnInput.checked = modelSettings.active;
 		modelOnTd.appendChild(modelOnInput);
 	}
 }
 
-function setCookie(name, value) {
-	document.cookie = name + "=" + escape(value) + "; path=/";
+function getVillages() {
+	var villages = [];
+	var plunderTable = document.getElementById('plunder_list');
+	var plunderTableLines = plunderTable.childNodes[1].getElementsByTagName('tr');
+	var i;
+	var j = 0;
+	for (i = 2; i < plunderTableLines.length; i++) {
+		var villageId = plunderTableLines[i].id;
+		var plunderLine = plunderTableLines[i].getElementsByTagName('td');
+		var villageWall = plunderLine[6].textContent;
+		var villageDist = plunderLine[7].textContent;
+		villages[j] = {
+			id: villageId,
+			wall: parseInt(villageWall),
+			distance: parseFloat(villageDist),
+			farmA: plunderLine[8].firstElementChild,
+			farmB: plunderLine[9].firstElementChild,
+			farmC: plunderLine[10].firstElementChild
+		}
+		j++;
+	}
+	console.log(villages);
+	return villages;
 }
 
-function getCookie(name) {
-	var re = new RegExp(name + "=([^;]+)");
-	var value = re.exec(document.cookie);
-	return (value != null) ? unescape(value[1]) : null;
+async function startFarming(settings, modelsSettings) {
+	var villages = getVillages();
+	var i;
+	for (i = 0; i < villages.length; i++) {
+		var modelChosen = "b";
+		var farm;
+		switch (modelChosen) {
+			case "a":
+				farm = villages[i].farmA;
+				break;
+			case "b":
+				farm = villages[i].farmB;
+				break;
+			case "c":
+				farm = villages[i].farmC;
+				break;
+			default:
+				break;
+		}
+		if (!farm.classList.contains("start_locked")) {
+			farm.click();
+		}
+		await sleep(farmSettings.timeBetweenAttacks);
+	}
+}
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
