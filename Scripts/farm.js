@@ -7,12 +7,12 @@
 // ==/UserScript==
 
 /* User may change these settings in order for the script to work as he wishes */
-var userSettings = {
+var farmSettings = {
 	refreshTime: Number, //in ms
 	nextVillageTime: Number
 }
 
-var modelsSettings;
+var modelsSettings = [{}, {}, {}];
 
 initialize();
 //if (userSettings.maxWall = getCookie("maxWall")) document.farmForm.maxWall.value = userSettings.maxWall;
@@ -26,7 +26,7 @@ function initialize() {
 function createModelsSettings() {
 	var i = 0;
 	for (i = 0; i < 3; i++) {
-		modelsSettings[i].model = "a";
+		modelsSettings[i].model = String.fromCharCode(97+i);
 		modelsSettings[i].maxWall = -1;
 		modelsSettings[i].maxDistance = -1;
 		modelsSettings[i].fullResources = true;
@@ -42,8 +42,8 @@ function loadSettings() {
 function createCookies() {
 	var i = 0;
 	for (i = 0; i < 3; i++) {
-		if (getCookie("model_" + modelsSettings[i].model)==null) {
-			setCookie("model_" + modelsSettings[i], modelsSettings[i]);
+		if (getCookie("model_" + modelsSettings[i].model) == null) {
+			setCookie("model_" + modelsSettings[i].model, modelsSettings[i]);
 		}
 	}
 }
@@ -62,20 +62,8 @@ function createSettingsForm() {
 
 	var i;
 	for (i = 0; i < 3; i++) {
-		var model;
-		switch (i) {
-			case 0:
-				model = 'a';
-				break;
-			case 1:
-				model = 'b';
-				break;
-			case 2:
-				model = 'c';
-				break;
-			default:
-				break;
-		}
+		var model = String.fromCharCode(97+i);
+		
 		var settForm = document.createElement("form");
 		settForm.setAttribute('name', model + "FarmForm");
 		newDiv.appendChild(settForm);
