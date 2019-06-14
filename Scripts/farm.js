@@ -8,7 +8,7 @@
 
 /* User may change these settings in order for the script to work as he wishes */
 var farmSettings = {
-	refreshTime: 1000000, //in ms
+	refreshTime: 180000, //in ms (180000 = 3 mins)
 	nextVillageTime: 100000,
 	timeBetweenAttacks: 300
 }
@@ -18,7 +18,7 @@ run();
 function run() {
 	var modelsSettings = loadSettings();
 	createSettingsForm(modelsSettings);
-	//startFarming(farmSettings, modelsSettings);
+	startFarming(farmSettings, modelsSettings);
 }
 
 function createModelsSettings() {
@@ -28,7 +28,7 @@ function createModelsSettings() {
 		modelsSettings[i].model = String.fromCharCode(97 + i);
 		modelsSettings[i].maxWall = 0;
 		modelsSettings[i].maxDistance = 0;
-		modelsSettings[i].fullResources = false;
+		modelsSettings[i].fullResources = true;
 		modelsSettings[i].emptyResources = true;
 		modelsSettings[i].active = false;
 	}
@@ -53,7 +53,7 @@ function saveModelSettings(model, modelsSettings) {
 	var form = document.getElementsByName(model + "FarmForm")[0];
 	var inputsRow = form.getElementsByTagName('tr')[1];
 	var inputs = inputsRow.getElementsByTagName("td");
-	var modelSettings = modelsSettings[97 - model.charCodeAt(0)];
+	var modelSettings = modelsSettings[model.charCodeAt(0) - 97];
 	var wall = parseInt(inputsRow.querySelector('input[name="maxWall"]').value);
 	if (wall == NaN || wall == null) {
 		alert("Maximum wall level for model " + model.toUpperCase() + " must be set!");
@@ -286,20 +286,33 @@ function getVillages() {
 			farmC: {
 				element: plunderLine[10].firstElementChild,
 				isLocked: plunderLine[10].firstElementChild.classList.contains("start_locked")
-			}
+			},
+			line: plunderTableLines[i]
 		}
 		j++;
 	}
-	console.log(villages);
 	return villages;
 }
 
 async function startFarming(settings, modelsSettings) {
-	var villages = getVillages();
+	setInterval(
+		function () {
+			window.location.reload();
+		}, settings.refreshTime);
+	do {
+		var villages = getVillages();
+		await farmVillages(villages, settings, modelsSettings);
+		console.log("Batch of villages farmed!");
+	} while(villages.length > 0)
+	console.log("All villages farmed");
+}
+
+async function farmVillages(villages, settings, modelsSettings) {
 	var i;
 	for (i = 0; i < villages.length; i++) {
 		var modelChosen = chooseModel(villages[i], modelsSettings);
 		var farm;
+		var isValid = true;
 		switch (modelChosen) {
 			case "a":
 				farm = villages[i].farmA;
@@ -311,22 +324,30 @@ async function startFarming(settings, modelsSettings) {
 				farm = villages[i].farmC;
 				break;
 			default:
+				isValid = false;
 				break;
 		}
-		/*if (!farm.isLocked) {
+		if (isValid && !farm.isLocked) {
 			farm.element.click();
-		}*/
+		} else {
+			villages[i].line.remove();
+		}
 		await sleep(settings.timeBetweenAttacks);
 	}
 }
 
 function chooseModel(village, modelsSettings) {
-	var model = "b";
 	var i;
+	var best = -1;
+	var bestValue = -1.0;
 	for (i = 0; i < 3; i++) {
-		console.log(getModelCompat(village, modelsSettings[i]));
+		var compat = getModelCompat(village, modelsSettings[i]);
+		if (compat > bestValue) {
+			best = i;
+			bestValue = compat;
+		}
 	}
-	return model;
+	return String.fromCharCode(97 + best);
 }
 
 function getModelCompat(village, modelSettings) {
