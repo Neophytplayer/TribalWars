@@ -263,7 +263,7 @@ async function startFarming(settings, modelsSettings) {
 	var villages = getVillages();
 	var i;
 	for (i = 0; i < villages.length; i++) {
-		var modelChosen = "b";
+		var modelChosen = chooseModel(villages[i], modelSettings);
 		var farm;
 		switch (modelChosen) {
 			case "a":
@@ -283,6 +283,11 @@ async function startFarming(settings, modelsSettings) {
 		}
 		await sleep(farmSettings.timeBetweenAttacks);
 	}
+}
+
+function chooseModel(village, modelsSettings) {
+	var model = "b";
+	return model;
 }
 
 function sleep(ms) {
