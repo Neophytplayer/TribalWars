@@ -15,12 +15,10 @@ var farmSettings = {
 
 run();
 
-//if (userSettings.maxWall = getCookie("maxWall")) document.farmForm.maxWall.value = userSettings.maxWall;
-
 function run() {
 	var modelsSettings = loadSettings();
 	createSettingsForm(modelsSettings);
-	startFarming(farmSettings, modelsSettings);
+	//startFarming(farmSettings, modelsSettings);
 }
 
 function createModelsSettings() {
@@ -49,6 +47,30 @@ function loadSettings() {
 
 function saveModelsSettings(modelsSettings) {
 	localStorage.setItem('modelsSettings', JSON.stringify(modelsSettings));
+}
+
+function saveModelSettings(model, modelsSettings) {
+	var form = document.getElementsByName(model + "FarmForm")[0];
+	var inputsRow = form.getElementsByTagName('tr')[1];
+	var inputs = inputsRow.getElementsByTagName("td");
+	var modelSettings = modelsSettings[97 - model.charCodeAt(0)];
+	var wall = parseInt(inputsRow.querySelector('input[name="maxWall"]').value);
+	if (wall == NaN || wall == null) {
+		alert("Maximum wall level for model " + model.toUpperCase() + " must be set!");
+		return;
+	}
+	modelSettings.maxWall = wall;
+	var distance = parseFloat(inputsRow.querySelector('input[name="maxDistance"]').value);
+	if (distance == NaN || distance == null) {
+		alert("Maximum distance for model " + model.toUpperCase() + " must be set!");
+		return;
+	}
+	modelSettings.maxDistance = distance;
+	modelSettings.fullResources = inputsRow.querySelector('input[name="fullResources"]').checked;
+	modelSettings.emptyResources = inputsRow.querySelector('input[name="emptyResources"]').checked;
+	modelSettings.active = inputsRow.querySelector('input[name="modelOn"]').checked;
+	alert("Settings for model " + model.toUpperCase() + " saved successfully!")
+	saveModelsSettings(modelsSettings);
 }
 
 function getModelsSettings() {
@@ -167,9 +189,13 @@ function createSettingsForm(modelsSettings) {
 		saveIconTd.appendChild(saveIconDiv);
 
 		var saveIcon = document.createElement("input");
+		saveIcon.setAttribute('name', model);
+		saveIcon.setAttribute('type', "button");
 		saveIcon.setAttribute('class', "btn");
-		//saveIcon.setAttribute('type',"submit");
 		saveIcon.setAttribute('value', "Guardar");
+		saveIcon.onclick = function () {
+			saveModelSettings(this.name, modelsSettings);
+		};
 		saveIconDiv.appendChild(saveIcon);
 
 		// Row2
@@ -216,7 +242,7 @@ function createSettingsForm(modelsSettings) {
 
 		var emptyResInput = document.createElement("input");
 		emptyResInput.setAttribute('type', "checkbox");
-		emptyResInput.setAttribute('name', "fullResources");
+		emptyResInput.setAttribute('name', "emptyResources");
 		emptyResInput.setAttribute('size', "3");
 		emptyResInput.checked = modelSettings.emptyResources;
 		emptyResTd.appendChild(emptyResInput);
@@ -227,7 +253,7 @@ function createSettingsForm(modelsSettings) {
 
 		var modelOnInput = document.createElement("input");
 		modelOnInput.setAttribute('type', "checkbox");
-		modelOnInput.setAttribute('name', "fullResources");
+		modelOnInput.setAttribute('name', "modelOn");
 		modelOnInput.setAttribute('size', "3");
 		modelOnInput.checked = modelSettings.active;
 		modelOnTd.appendChild(modelOnInput);
@@ -249,9 +275,18 @@ function getVillages() {
 			id: villageId,
 			wall: parseInt(villageWall),
 			distance: parseFloat(villageDist),
-			farmA: plunderLine[8].firstElementChild,
-			farmB: plunderLine[9].firstElementChild,
-			farmC: plunderLine[10].firstElementChild
+			farmA: {
+				element: plunderLine[8].firstElementChild,
+				isLocked: plunderLine[8].firstElementChild.classList.contains("start_locked")
+			},
+			farmB: {
+				element: plunderLine[9].firstElementChild,
+				isLocked: plunderLine[9].firstElementChild.classList.contains("start_locked")
+			},
+			farmC: {
+				element: plunderLine[10].firstElementChild,
+				isLocked: plunderLine[10].firstElementChild.classList.contains("start_locked")
+			}
 		}
 		j++;
 	}
@@ -263,7 +298,7 @@ async function startFarming(settings, modelsSettings) {
 	var villages = getVillages();
 	var i;
 	for (i = 0; i < villages.length; i++) {
-		var modelChosen = chooseModel(villages[i], modelSettings);
+		var modelChosen = chooseModel(villages[i], modelsSettings);
 		var farm;
 		switch (modelChosen) {
 			case "a":
@@ -278,16 +313,47 @@ async function startFarming(settings, modelsSettings) {
 			default:
 				break;
 		}
-		if (!farm.classList.contains("start_locked")) {
-			farm.click();
-		}
-		await sleep(farmSettings.timeBetweenAttacks);
+		/*if (!farm.isLocked) {
+			farm.element.click();
+		}*/
+		await sleep(settings.timeBetweenAttacks);
 	}
 }
 
 function chooseModel(village, modelsSettings) {
 	var model = "b";
+	var i;
+	for (i = 0; i < 3; i++) {
+		console.log(getModelCompat(village, modelsSettings[i]));
+	}
 	return model;
+}
+
+function getModelCompat(village, modelSettings) {
+	if (!modelSettings.active || village.wall > modelSettings.maxWall || village.distance > modelSettings.maxDistance) {
+		return -1;
+	}
+	var farm;
+	switch (modelSettings.model) {
+		case "a":
+			farm = village.farmA;
+			break;
+		case "b":
+			farm = village.farmB;
+			break;
+		case "c":
+			farm = village.farmC;
+			break;
+		default:
+			return -1;
+	}
+	if (farm.isLocked) {
+		return -1;
+	}
+	var compat = 0.0;
+	compat += village.wall / modelSettings.maxWall;
+	compat += village.distance / modelSettings.maxDistance;
+	return compat;
 }
 
 function sleep(ms) {
