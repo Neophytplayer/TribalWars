@@ -10,7 +10,8 @@
 var farmSettings = {
 	refreshTime: 180000, //in ms (180000 = 3 mins)
 	nextVillageTime: 100000,
-	timeBetweenAttacks: 300
+	switchVillages: true,
+	timeBetweenAttacks: 300 //should be higher than the minimum interval between attacks that the server allows
 }
 
 run();
@@ -295,16 +296,21 @@ function getVillages() {
 }
 
 async function startFarming(settings, modelsSettings) {
-	setInterval(
-		function () {
+	var f;
+	if (settings.switchVillages) {
+		f = function () {
+			document.getElementById("village_switch_right").getElementsByTagName("span")[0].click();
+		};
+	} else {
+		f = function () {
 			window.location.reload();
-		}, settings.refreshTime);
+		};
+	}
+	setInterval(f, settings.refreshTime);
 	do {
 		var villages = getVillages();
 		await farmVillages(villages, settings, modelsSettings);
-		console.log("Batch of villages farmed!");
-	} while(villages.length > 0)
-	console.log("All villages farmed");
+	} while (villages.length > 0);
 }
 
 async function farmVillages(villages, settings, modelsSettings) {
@@ -330,7 +336,7 @@ async function farmVillages(villages, settings, modelsSettings) {
 		if (isValid && !farm.isLocked) {
 			farm.element.click();
 		} else {
-			villages[i].line.remove();
+			//villages[i].line.remove();
 		}
 		await sleep(settings.timeBetweenAttacks);
 	}
