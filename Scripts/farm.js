@@ -4,7 +4,7 @@
 // @author Pengu
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 2.0.3
+// @version 2.0.4
 // @updateURL https://raw.githubusercontent.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
 // @downloadURL https://raw.githubusercontent.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
 // ==/UserScript==
@@ -91,8 +91,8 @@ function updateFarmSettings(farmSettings) {
 		modelSettings.active = inputsRow.querySelector('input[name="modelOn"]').checked;
 	}
 
-	farmSettings.refreshTime = document.getElementById("refreshTimeInput").getAttribute('value');
-	farmSettings.timeBetweenAttacks = document.getElementById("timeBetweenAttacksInput").getAttribute('value');
+	farmSettings.refreshTime = parseInt(document.getElementById("refreshTimeInput").value);
+	farmSettings.timeBetweenAttacks = parseInt(document.getElementById("timeBetweenAttacksInput").value);
 
 	//Save settings to local storage
 	saveFarmSettings(farmSettings);
