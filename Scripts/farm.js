@@ -5,8 +5,8 @@
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
 // @version 2.0.4
-// @updateURL https://raw.githubusercontent.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
-// @downloadURL https://raw.githubusercontent.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
+// @updateURL https://raw.githubusercontent.com/pingudiogo/TribalWars/master/Scripts/farm.js
+// @downloadURL https://raw.githubusercontent.com/pingudiogo/TribalWars/master/Scripts/farm.js
 // ==/UserScript==
 
 
