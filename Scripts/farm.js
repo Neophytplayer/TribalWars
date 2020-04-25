@@ -4,7 +4,9 @@
 // @author Pengu
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 2.0.1
+// @version 2.0.2
+// @updateURL https://github.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
+// @downloadURL https://github.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
 // ==/UserScript==
 
 
@@ -89,6 +91,9 @@ function updateFarmSettings(farmSettings) {
 		modelSettings.active = inputsRow.querySelector('input[name="modelOn"]').checked;
 	}
 
+	farmSettings.refreshTime = document.getElementById("refreshTimeInput").getAttribute('value');
+	farmSettings.timeBetweenAttacks = document.getElementById()
+
 	//Save settings to local storage
 	saveFarmSettings(farmSettings);
 	alert("Settings for farming assistant saved successfully!");
@@ -151,15 +156,15 @@ function createSettingsForm(farmSettings) {
 	scriptSettingsSplit1.appendChild(timeBetweenAttacksSpan);
 
 	var timeBetweenAttacksLabel = document.createElement("label");
-	timeBetweenAttacksLabel.setAttribute('for', "refreshTimeInput");
+	timeBetweenAttacksLabel.setAttribute('for', "timeBetweenAttacksInput");
 	timeBetweenAttacksLabel.setAttribute('style', "padding-right:10px;");
 	timeBetweenAttacksLabel.innerHTML = "Time between attacks in ms:";
 	timeBetweenAttacksSpan.appendChild(timeBetweenAttacksLabel);
 
 	var timeBetweenAttacksInput = document.createElement("input");
-	timeBetweenAttacksInput.setAttribute('id', "refreshTimeInput");
+	timeBetweenAttacksInput.setAttribute('id', "timeBetweenAttacksInput");
 	timeBetweenAttacksInput.setAttribute('type', "number");
-	timeBetweenAttacksInput.setAttribute('name', "refreshTime");
+	timeBetweenAttacksInput.setAttribute('name', "timeBetweenAttacks");
 	timeBetweenAttacksInput.setAttribute('size', "3");
 	timeBetweenAttacksInput.setAttribute('value', farmSettings.timeBetweenAttacks);
 	timeBetweenAttacksSpan.appendChild(timeBetweenAttacksInput);
