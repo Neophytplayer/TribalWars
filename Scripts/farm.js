@@ -4,7 +4,7 @@
 // @author Pengu
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 2.0.2
+// @version 2.0.3
 // @updateURL https://github.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/blob/master/Scripts/farm.js
 // ==/UserScript==
@@ -92,7 +92,7 @@ function updateFarmSettings(farmSettings) {
 	}
 
 	farmSettings.refreshTime = document.getElementById("refreshTimeInput").getAttribute('value');
-	farmSettings.timeBetweenAttacks = document.getElementById()
+	farmSettings.timeBetweenAttacks = document.getElementById("timeBetweenAttacksInput").getAttribute('value');
 
 	//Save settings to local storage
 	saveFarmSettings(farmSettings);
