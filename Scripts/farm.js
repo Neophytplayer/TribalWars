@@ -2,6 +2,7 @@
 // @name Farm
 // @description Pengu's best auto farmer
 // @author Pengu
+// @namespace https://github.com/pingudiogo
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
 // @version 2.0.5
