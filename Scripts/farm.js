@@ -4,7 +4,7 @@
 // @author Pengu
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 2.0.4
+// @version 2.0.5
 // @updateURL https://raw.githubusercontent.com/pingudiogo/TribalWars/master/Scripts/farm.js
 // @downloadURL https://raw.githubusercontent.com/pingudiogo/TribalWars/master/Scripts/farm.js
 // ==/UserScript==
@@ -104,7 +104,7 @@ function updateFarmSettings(farmSettings) {
  */
 function getModelsSettings() {
 	var settings = JSON.parse(localStorage.getItem('modelsSettings'));
-	//localStorage.removeItem('modelsSettings');
+	localStorage.removeItem('modelsSettings');
 	return settings;
 }
 
