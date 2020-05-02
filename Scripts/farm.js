@@ -13,6 +13,13 @@
 
 var error = false;
 
+var reportColor = {
+	green: "https://dspt.innogamescdn.com/asset/ef232b3/graphic/dots/green.png",
+	yellow: "https://dspt.innogamescdn.com/asset/ef232b3/graphic/dots/yellow.png",
+	red: "https://dspt.innogamescdn.com/asset/ef232b3/graphic/dots/red.png",
+	redandblue: ""
+}
+
 run();
 
 function run() {
@@ -45,6 +52,7 @@ function createFarmSettings() {
 		refreshTime: 60000,
 		switchVillages: true,
 		timeBetweenAttacks: 200,
+		active: false,
 		modelsSettings: modelsSettings
 	}
 	return farmSettings;
@@ -364,10 +372,23 @@ function getVillages() {
 		} else {
 			intVillageWall = -1;
 		}
+		var lastAttackImg = plunderLine[1].firstElementChild.getAttribute("src");
+		var lastAttack;
+		switch (lastAttackImg) {
+			case reportColor.green:
+				break;
+			case reportColor.yellow:
+				break;
+			case reportColor.red:
+				break;
+			default:
+				break;
+		}
 		villages[j] = {
 			id: villageId,
 			wall: intVillageWall,
 			distance: parseFloat(villageDist),
+			lastAttack: lastAttack,
 			farmA: {
 				element: plunderLine[8].firstElementChild,
 				isLocked: plunderLine[8].firstElementChild.classList.contains("start_locked")
