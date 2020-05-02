@@ -5,7 +5,7 @@
 // @namespace https://github.com/pingudiogo
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 2.0.8
+// @version 2.0.9
 // @updateURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // ==/UserScript==
@@ -94,6 +94,7 @@ function updateFarmSettings(farmSettings) {
 
 	farmSettings.refreshTime = parseInt(document.getElementById("refreshTimeInput").value);
 	farmSettings.timeBetweenAttacks = parseInt(document.getElementById("timeBetweenAttacksInput").value);
+	farmSettings.switchVillages = document.getElementById("switchVillagesInput").checked;
 
 	//Save settings to local storage
 	saveFarmSettings(farmSettings);
@@ -175,6 +176,22 @@ function createSettingsForm(farmSettings) {
 	var scriptSettingsSplit2 = document.createElement("div");
 	scriptSettingsSplit2.setAttribute('style', 'float:left; padding-left: 10px;');
 	scriptSettings.appendChild(scriptSettingsSplit2);
+
+	var switchVillagesSpan = document.createElement("span");
+	scriptSettingsSplit2.appendChild(switchVillagesSpan);
+
+	var switchVillagesLabel = document.createElement("label");
+	switchVillagesLabel.setAttribute('for', "switchVillagesInput");
+	switchVillagesLabel.setAttribute('style', "padding-right:10px;");
+	switchVillagesLabel.innerHTML = "Switch villages:";
+	switchVillagesSpan.appendChild(switchVillagesLabel);
+
+	var switchVillagesInput = document.createElement("input");
+	switchVillagesInput.setAttribute('id', "switchVillagesInput");
+	switchVillagesInput.setAttribute('type', "checkbox");
+	switchVillagesInput.setAttribute('name', "switchVillages");
+	switchVillagesInput.checked = farmSettings.switchVillages;
+	switchVillagesSpan.appendChild(switchVillagesInput);
 
 	var i;
 	for (i = 0; i < 3; i++) {
