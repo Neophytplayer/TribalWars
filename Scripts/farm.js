@@ -13,6 +13,7 @@
 
 var error = false;
 var assetVersion = TribalWars.getGameData().version.split(" ")[0];
+var assetUrl = "https://dspt.innogamescdn.com/asset/";
 
 var reportColor = {
 	blue: "/graphic/dots/blue.png",
@@ -254,7 +255,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(wallTh);
 
 		var wallImage = document.createElement("img");
-		wallImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/buildings/wall.png");
+		wallImage.setAttribute('src', assetUrl + assetVersion + "/graphic/buildings/wall.png");
 		wallImage.setAttribute('class', "");
 		wallImage.setAttribute('title', "Max Wall Level");
 		wallTh.appendChild(wallImage);
