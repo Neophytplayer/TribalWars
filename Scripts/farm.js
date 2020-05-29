@@ -12,12 +12,15 @@
 
 
 var error = false;
+var assetVersion = TribalWars.getGameData().version.split(" ")[0];
 
 var reportColor = {
-	green: "https://dspt.innogamescdn.com/asset/ef232b3/graphic/dots/green.png",
-	yellow: "https://dspt.innogamescdn.com/asset/ef232b3/graphic/dots/yellow.png",
-	red: "https://dspt.innogamescdn.com/asset/ef232b3/graphic/dots/red.png",
-	redandblue: ""
+	blue: "/graphic/dots/blue.png",
+	green: "/graphic/dots/green.png",
+	yellow: "/graphic/dots/yellow.png",
+	red: "/graphic/dots/red.png",
+	redBlue: "/graphic/dots/red_blue.png",
+	redYellow: "/graphic/dots/red_yellow.png"
 }
 
 run();
@@ -37,6 +40,14 @@ function createModelsSettings() {
 		modelsSettings[i].maxDistance = 0;
 		modelsSettings[i].fullResources = true;
 		modelsSettings[i].emptyResources = true;
+		modelsSettings[i].reportColor = {
+			blue: false,
+			green: false,
+			yellow: false,
+			red: false,
+			redBlue: false,
+			redYellow: false
+		}
 		modelsSettings[i].active = false;
 	}
 	return modelsSettings;
@@ -391,15 +402,10 @@ function getVillages() {
 		}
 		var lastAttackImg = plunderLine[1].firstElementChild.getAttribute("src");
 		var lastAttack;
-		switch (lastAttackImg) {
-			case reportColor.green:
-				break;
-			case reportColor.yellow:
-				break;
-			case reportColor.red:
-				break;
-			default:
-				break;
+		for (var color in reportColor) {
+			if (lastAttackImg.includes(reportColor[color])) {
+				lastAttack = color;
+			}
 		}
 		villages[j] = {
 			id: villageId,
