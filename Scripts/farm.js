@@ -266,7 +266,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(distTh);
 
 		var distImage = document.createElement("img");
-		distImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/rechts.png");
+		distImage.setAttribute('src', assetUrl + assetVersion + "/graphic/rechts.png");
 		distImage.setAttribute('class', "");
 		distImage.setAttribute('title', "Max Distance");
 		distTh.appendChild(distImage);
@@ -277,7 +277,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(fullResTh);
 
 		var fullResImage = document.createElement("img");
-		fullResImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/max_loot/1.png");
+		fullResImage.setAttribute('src', assetUrl + assetVersion + "/graphic/max_loot/1.png");
 		fullResImage.setAttribute('class', "");
 		fullResImage.setAttribute('title', "Full Loot");
 		fullResTh.appendChild(fullResImage);
@@ -288,10 +288,24 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(emptyResTh);
 
 		var emptyResImage = document.createElement("img");
-		emptyResImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/max_loot/0.png");
+		emptyResImage.setAttribute('src', assetUrl + assetVersion + "/graphic/max_loot/0.png");
 		emptyResImage.setAttribute('class', "");
 		emptyResImage.setAttribute('title', "Parcial Loot");
 		emptyResTh.appendChild(emptyResImage);
+
+		//Add report colors' collumns
+		for (var color in reportColor) {
+			var colorTh = document.createElement("th");
+			colorTh.setAttribute('style', "text-align:center");
+			colorTh.setAttribute('width', "35");
+			tableRow1.appendChild(colorTh);
+
+			var colorImg = document.createElement("img");
+			colorImg.setAttribute('src', assetUrl + assetVersion + reportColor[color]);
+			colorImg.setAttribute('class', "");
+			colorImg.setAttribute('title', "Attack when report " + color);
+			colorTh.appendChild(colorImg);
+		}
 
 		var modelOnTh = document.createElement("th");
 		modelOnTh.setAttribute('style', "text-align:center");
@@ -299,7 +313,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(modelOnTh);
 
 		var modelOnImage = document.createElement("img");
-		modelOnImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/dots/green.png");
+		modelOnImage.setAttribute('src', assetUrl + assetVersion + "/graphic/dots/green.png");
 		modelOnImage.setAttribute('class', "");
 		modelOnImage.setAttribute('title', "Model Active");
 		modelOnTh.appendChild(modelOnImage);
@@ -352,6 +366,19 @@ function createSettingsForm(farmSettings) {
 		emptyResInput.setAttribute('size', "3");
 		emptyResInput.checked = modelSettings.emptyResources;
 		emptyResTd.appendChild(emptyResInput);
+
+		for (var color in reportColor) {
+			var colorTd = document.createElement("td");
+			colorTd.setAttribute('align', "center");
+			tableRow2.appendChild(colorTd);
+
+			var colorInput = document.createElement("input");
+			colorInput.setAttribute('type', "checkbox");
+			colorInput.setAttribute('name', color + "Attack");
+			colorInput.setAttribute('size', "3");
+			colorInput.checked = modelSettings.reportColor[color];
+			colorTd.appendChild(colorInput);
+		}
 
 		var modelOnTd = document.createElement("td");
 		modelOnTd.setAttribute('align', "center");
