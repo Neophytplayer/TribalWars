@@ -5,7 +5,7 @@
 // @namespace https://github.com/pingudiogo
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 2.0.9
+// @version 3.0.0
 // @updateURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // ==/UserScript==
@@ -109,6 +109,11 @@ function updateFarmSettings(farmSettings) {
 		modelSettings.maxDistance = distance;
 		modelSettings.fullResources = inputsRow.querySelector('input[name="fullResources"]').checked;
 		modelSettings.emptyResources = inputsRow.querySelector('input[name="emptyResources"]').checked;
+
+		for (var color in reportColor) {
+			modelSettings.reportColor[color] = inputsRow.querySelector('input[name="' + color + 'Attack"]').checked;
+		}
+
 		modelSettings.active = inputsRow.querySelector('input[name="modelOn"]').checked;
 	}
 
@@ -313,7 +318,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(modelOnTh);
 
 		var modelOnImage = document.createElement("img");
-		modelOnImage.setAttribute('src', assetUrl + assetVersion + "/graphic/dots/green.png");
+		modelOnImage.setAttribute('src', assetUrl + assetVersion + "/graphic/quests/completed.png");
 		modelOnImage.setAttribute('class', "");
 		modelOnImage.setAttribute('title', "Model Active");
 		modelOnTh.appendChild(modelOnImage);
@@ -531,6 +536,9 @@ function chooseModel(village, modelsSettings) {
 
 function getModelCompat(village, modelSettings) {
 	if (!modelSettings.active || (/*village.wall != -1 &&*/ village.wall > modelSettings.maxWall) || village.distance > modelSettings.maxDistance) {
+		return -1;
+	}
+	if (!modelSettings.reportColor[village.lastAttack]) {
 		return -1;
 	}
 	var farm;
