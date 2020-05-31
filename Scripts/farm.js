@@ -55,11 +55,7 @@ function createModelsSettings() {
 }
 
 function createFarmSettings() {
-	//This was made for people using older versions of the script, will be removed on the next update probably
-	var modelsSettings = getModelsSettings();
-	if (modelsSettings == null) {
-		modelsSettings = createModelsSettings();
-	}
+	var modelsSettings = createModelsSettings();
 	var farmSettings = {
 		refreshTime: 60000,
 		switchVillages: true,
@@ -126,13 +122,8 @@ function updateFarmSettings(farmSettings) {
 	alert("Settings for farming assistant saved successfully!");
 }
 
-/**
- * Will be removed on newer versions
- */
-function getModelsSettings() {
-	var settings = JSON.parse(localStorage.getItem('modelsSettings'));
-	localStorage.removeItem('modelsSettings');
-	return settings;
+function resetSettings(farmSettings) {
+
 }
 
 function getFarmSettings() {
@@ -318,7 +309,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(modelOnTh);
 
 		var modelOnImage = document.createElement("img");
-		modelOnImage.setAttribute('src', assetUrl + assetVersion + "/graphic/quests/completed.png");
+		modelOnImage.setAttribute('src', assetUrl + assetVersion + "/graphic/quests/check.png");
 		modelOnImage.setAttribute('class', "");
 		modelOnImage.setAttribute('title', "Model Active");
 		modelOnTh.appendChild(modelOnImage);
@@ -401,6 +392,7 @@ function createSettingsForm(farmSettings) {
 
 	var saveIconDiv = document.createElement("div");
 	saveIconDiv.setAttribute('class', "vis_item");
+	saveIconDiv.setAttribute('align', "center");
 	newDiv.appendChild(saveIconDiv);
 
 	var saveIcon = document.createElement("input");
