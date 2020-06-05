@@ -67,13 +67,38 @@ function createFarmSettings() {
 	return farmSettings;
 }
 
+function patchFarmSettings(farmSettings) {
+	var newFarmSettings = createFarmSettings();
+	for (var setting in newFarmSettings) {
+		if (setting == "modelsSettings") {
+			var newModelsSettings = newFarmSettings[setting];
+			var modelsSettings = farmSettings[setting];
+			for (var i = 0; i<3;i++) {
+				var newModelSettings = newModelsSettings[i];
+				var modelSettings = modelsSettings[i];
+				for (var modelSetting in newModelSettings) {
+					if (modelSettings[modelSetting] == null) {
+						modelSettings[modelSetting] = newModelSettings[modelSetting];
+					}
+				}
+			}
+			continue;
+		}
+		if (farmSettings[setting] == null) {
+			farmSettings[setting] = newFarmSettings[setting];
+		}
+	}
+	farmSettings.version = farmSettingsVersion;
+}
+
 function loadSettings() {
 	var farmSettings = getFarmSettings();
 	if (farmSettings == null) {
 		console.log("Creating farm settings!");
 		farmSettings = createFarmSettings();
 	} else if (farmSettings.version != farmSettingsVersion) {
-		console.log("detected different versions");
+		console.log("Patching settings to new version!");
+		patchFarmSettings(farmSettings);
 	}
 	saveFarmSettings(farmSettings);
 	return farmSettings;
