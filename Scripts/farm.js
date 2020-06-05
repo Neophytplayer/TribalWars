@@ -5,13 +5,24 @@
 // @namespace https://github.com/pingudiogo
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 2.0.9
+// @version 3.0.0
 // @updateURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // ==/UserScript==
 
-
+var farmSettingsVersion = "1.0";
 var error = false;
+var assetVersion = TribalWars.getGameData().version.split(" ")[0];
+var assetUrl = "https://dspt.innogamescdn.com/asset/";
+
+var reportColor = {
+	blue: "/graphic/dots/blue.png",
+	green: "/graphic/dots/green.png",
+	yellow: "/graphic/dots/yellow.png",
+	red: "/graphic/dots/red.png",
+	redBlue: "/graphic/dots/red_blue.png",
+	redYellow: "/graphic/dots/red_yellow.png"
+}
 
 run();
 
@@ -30,24 +41,54 @@ function createModelsSettings() {
 		modelsSettings[i].maxDistance = 0;
 		modelsSettings[i].fullResources = true;
 		modelsSettings[i].emptyResources = true;
+		modelsSettings[i].reportColor = {
+			blue: false,
+			green: false,
+			yellow: false,
+			red: false,
+			redBlue: false,
+			redYellow: false
+		}
 		modelsSettings[i].active = false;
 	}
 	return modelsSettings;
 }
 
 function createFarmSettings() {
-	//This was made for people using older versions of the script, will be removed on the next update probably
-	var modelsSettings = getModelsSettings();
-	if (modelsSettings == null) {
-		modelsSettings = createModelsSettings();
-	}
+	var modelsSettings = createModelsSettings();
 	var farmSettings = {
 		refreshTime: 60000,
 		switchVillages: true,
 		timeBetweenAttacks: 200,
+		active: false,
+		version: farmSettingsVersion,
 		modelsSettings: modelsSettings
 	}
 	return farmSettings;
+}
+
+function patchFarmSettings(farmSettings) {
+	var newFarmSettings = createFarmSettings();
+	for (var setting in newFarmSettings) {
+		if (setting == "modelsSettings") {
+			var newModelsSettings = newFarmSettings[setting];
+			var modelsSettings = farmSettings[setting];
+			for (var i = 0; i<3;i++) {
+				var newModelSettings = newModelsSettings[i];
+				var modelSettings = modelsSettings[i];
+				for (var modelSetting in newModelSettings) {
+					if (modelSettings[modelSetting] == null) {
+						modelSettings[modelSetting] = newModelSettings[modelSetting];
+					}
+				}
+			}
+			continue;
+		}
+		if (farmSettings[setting] == null) {
+			farmSettings[setting] = newFarmSettings[setting];
+		}
+	}
+	farmSettings.version = farmSettingsVersion;
 }
 
 function loadSettings() {
@@ -55,6 +96,9 @@ function loadSettings() {
 	if (farmSettings == null) {
 		console.log("Creating farm settings!");
 		farmSettings = createFarmSettings();
+	} else if (farmSettings.version != farmSettingsVersion) {
+		console.log("Patching settings to new version!");
+		patchFarmSettings(farmSettings);
 	}
 	saveFarmSettings(farmSettings);
 	return farmSettings;
@@ -89,6 +133,11 @@ function updateFarmSettings(farmSettings) {
 		modelSettings.maxDistance = distance;
 		modelSettings.fullResources = inputsRow.querySelector('input[name="fullResources"]').checked;
 		modelSettings.emptyResources = inputsRow.querySelector('input[name="emptyResources"]').checked;
+
+		for (var color in reportColor) {
+			modelSettings.reportColor[color] = inputsRow.querySelector('input[name="' + color + 'Attack"]').checked;
+		}
+
 		modelSettings.active = inputsRow.querySelector('input[name="modelOn"]').checked;
 	}
 
@@ -101,13 +150,11 @@ function updateFarmSettings(farmSettings) {
 	alert("Settings for farming assistant saved successfully!");
 }
 
-/**
- * Will be removed on newer versions
- */
-function getModelsSettings() {
-	var settings = JSON.parse(localStorage.getItem('modelsSettings'));
-	localStorage.removeItem('modelsSettings');
-	return settings;
+function resetSettings(farmSettings) {
+	farmSettings = createFarmSettings();
+	saveFarmSettings(farmSettings);
+	alert("Settings for farming assistant were reset to default values! Page will now refresh!");
+	window.location.reload();
 }
 
 function getFarmSettings() {
@@ -235,7 +282,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(wallTh);
 
 		var wallImage = document.createElement("img");
-		wallImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/buildings/wall.png");
+		wallImage.setAttribute('src', assetUrl + assetVersion + "/graphic/buildings/wall.png");
 		wallImage.setAttribute('class', "");
 		wallImage.setAttribute('title', "Max Wall Level");
 		wallTh.appendChild(wallImage);
@@ -246,7 +293,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(distTh);
 
 		var distImage = document.createElement("img");
-		distImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/rechts.png");
+		distImage.setAttribute('src', assetUrl + assetVersion + "/graphic/rechts.png");
 		distImage.setAttribute('class', "");
 		distImage.setAttribute('title', "Max Distance");
 		distTh.appendChild(distImage);
@@ -257,7 +304,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(fullResTh);
 
 		var fullResImage = document.createElement("img");
-		fullResImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/max_loot/1.png");
+		fullResImage.setAttribute('src', assetUrl + assetVersion + "/graphic/max_loot/1.png");
 		fullResImage.setAttribute('class', "");
 		fullResImage.setAttribute('title', "Full Loot");
 		fullResTh.appendChild(fullResImage);
@@ -268,10 +315,24 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(emptyResTh);
 
 		var emptyResImage = document.createElement("img");
-		emptyResImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/max_loot/0.png");
+		emptyResImage.setAttribute('src', assetUrl + assetVersion + "/graphic/max_loot/0.png");
 		emptyResImage.setAttribute('class', "");
 		emptyResImage.setAttribute('title', "Parcial Loot");
 		emptyResTh.appendChild(emptyResImage);
+
+		//Add report colors' collumns
+		for (var color in reportColor) {
+			var colorTh = document.createElement("th");
+			colorTh.setAttribute('style', "text-align:center");
+			colorTh.setAttribute('width', "35");
+			tableRow1.appendChild(colorTh);
+
+			var colorImg = document.createElement("img");
+			colorImg.setAttribute('src', assetUrl + assetVersion + reportColor[color]);
+			colorImg.setAttribute('class', "");
+			colorImg.setAttribute('title', "Attack when report " + color);
+			colorTh.appendChild(colorImg);
+		}
 
 		var modelOnTh = document.createElement("th");
 		modelOnTh.setAttribute('style', "text-align:center");
@@ -279,7 +340,7 @@ function createSettingsForm(farmSettings) {
 		tableRow1.appendChild(modelOnTh);
 
 		var modelOnImage = document.createElement("img");
-		modelOnImage.setAttribute('src', "https://dspt.innogamescdn.com/asset/cf501e93/graphic/dots/green.png");
+		modelOnImage.setAttribute('src', assetUrl + assetVersion + "/graphic/quests/check.png");
 		modelOnImage.setAttribute('class', "");
 		modelOnImage.setAttribute('title', "Model Active");
 		modelOnTh.appendChild(modelOnImage);
@@ -333,6 +394,19 @@ function createSettingsForm(farmSettings) {
 		emptyResInput.checked = modelSettings.emptyResources;
 		emptyResTd.appendChild(emptyResInput);
 
+		for (var color in reportColor) {
+			var colorTd = document.createElement("td");
+			colorTd.setAttribute('align', "center");
+			tableRow2.appendChild(colorTd);
+
+			var colorInput = document.createElement("input");
+			colorInput.setAttribute('type', "checkbox");
+			colorInput.setAttribute('name', color + "Attack");
+			colorInput.setAttribute('size', "3");
+			colorInput.checked = modelSettings.reportColor[color];
+			colorTd.appendChild(colorInput);
+		}
+
 		var modelOnTd = document.createElement("td");
 		modelOnTd.setAttribute('align', "center");
 		tableRow2.appendChild(modelOnTd);
@@ -349,6 +423,7 @@ function createSettingsForm(farmSettings) {
 
 	var saveIconDiv = document.createElement("div");
 	saveIconDiv.setAttribute('class', "vis_item");
+	saveIconDiv.setAttribute('align', "center");
 	newDiv.appendChild(saveIconDiv);
 
 	var saveIcon = document.createElement("input");
@@ -359,6 +434,15 @@ function createSettingsForm(farmSettings) {
 		updateFarmSettings(farmSettings);
 	};
 	saveIconDiv.appendChild(saveIcon);
+
+	var resetIcon = document.createElement("input");
+	resetIcon.setAttribute('type', "button");
+	resetIcon.setAttribute('class', "btn");
+	resetIcon.setAttribute('value', "Reset Settings");
+	resetIcon.onclick = function () {
+		resetSettings(farmSettings);
+	};
+	saveIconDiv.appendChild(resetIcon);
 }
 
 function getVillages() {
@@ -381,27 +465,45 @@ function getVillages() {
 		} else {
 			intVillageWall = -1;
 		}
+		var lastAttackImg = plunderLine[1].firstElementChild.getAttribute("src");
+		var lastAttack;
+		for (var color in reportColor) {
+			if (lastAttackImg.includes(reportColor[color])) {
+				lastAttack = color;
+			}
+		}
+		var farmA = plunderTableLines[i].getElementsByClassName("farm_icon_a")[0];
+		var farmB = plunderTableLines[i].getElementsByClassName("farm_icon_b")[0];
+		var farmC = plunderTableLines[i].getElementsByClassName("farm_icon_c")[0];
 		villages[j] = {
 			id: villageId,
 			wall: intVillageWall,
 			distance: parseFloat(villageDist),
+			lastAttack: lastAttack,
 			farmA: {
-				element: plunderLine[8].firstElementChild,
-				isLocked: plunderLine[8].firstElementChild.classList.contains("start_locked")
+				element: farmA,
+				isLocked: checkFarmLocked(farmA)
 			},
 			farmB: {
-				element: plunderLine[9].firstElementChild,
-				isLocked: plunderLine[9].firstElementChild.classList.contains("start_locked")
+				element: farmB,
+				isLocked: checkFarmLocked(farmB)
 			},
 			farmC: {
-				element: plunderLine[10].firstElementChild,
-				isLocked: plunderLine[10].firstElementChild.classList.contains("start_locked")
+				element: farmC,
+				isLocked: checkFarmLocked(farmC)
 			},
 			line: plunderTableLines[i]
 		}
 		j++;
 	}
 	return villages;
+}
+
+function checkFarmLocked(farmElement) {
+	if (farmElement == null || typeof farmElement === 'undefined'){
+		return false;
+	}
+	return farmElement.classList.contains("start_locked");
 }
 
 async function startFarming(farmSettings) {
@@ -476,6 +578,9 @@ function chooseModel(village, modelsSettings) {
 
 function getModelCompat(village, modelSettings) {
 	if (!modelSettings.active || (/*village.wall != -1 &&*/ village.wall > modelSettings.maxWall) || village.distance > modelSettings.maxDistance) {
+		return -1;
+	}
+	if (!modelSettings.reportColor[village.lastAttack]) {
 		return -1;
 	}
 	var farm;
