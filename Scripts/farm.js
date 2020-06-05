@@ -10,7 +10,7 @@
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // ==/UserScript==
 
-
+var farmSettingsVersion = "1.0";
 var error = false;
 var assetVersion = TribalWars.getGameData().version.split(" ")[0];
 var assetUrl = "https://dspt.innogamescdn.com/asset/";
@@ -61,6 +61,7 @@ function createFarmSettings() {
 		switchVillages: true,
 		timeBetweenAttacks: 200,
 		active: false,
+		version: farmSettingsVersion,
 		modelsSettings: modelsSettings
 	}
 	return farmSettings;
@@ -71,6 +72,8 @@ function loadSettings() {
 	if (farmSettings == null) {
 		console.log("Creating farm settings!");
 		farmSettings = createFarmSettings();
+	} else if (farmSettings.version != farmSettingsVersion) {
+		console.log("detected different versions");
 	}
 	saveFarmSettings(farmSettings);
 	return farmSettings;
@@ -123,7 +126,10 @@ function updateFarmSettings(farmSettings) {
 }
 
 function resetSettings(farmSettings) {
-
+	farmSettings = createFarmSettings();
+	saveFarmSettings(farmSettings);
+	alert("Settings for farming assistant were reset to default values! Page will now refresh!");
+	window.location.reload();
 }
 
 function getFarmSettings() {
@@ -403,6 +409,15 @@ function createSettingsForm(farmSettings) {
 		updateFarmSettings(farmSettings);
 	};
 	saveIconDiv.appendChild(saveIcon);
+
+	var resetIcon = document.createElement("input");
+	resetIcon.setAttribute('type', "button");
+	resetIcon.setAttribute('class', "btn");
+	resetIcon.setAttribute('value', "Reset Settings");
+	resetIcon.onclick = function () {
+		resetSettings(farmSettings);
+	};
+	saveIconDiv.appendChild(resetIcon);
 }
 
 function getVillages() {
@@ -432,28 +447,38 @@ function getVillages() {
 				lastAttack = color;
 			}
 		}
+		var farmA = plunderTableLines[i].getElementsByClassName("farm_icon_a")[0];
+		var farmB = plunderTableLines[i].getElementsByClassName("farm_icon_b")[0];
+		var farmC = plunderTableLines[i].getElementsByClassName("farm_icon_c")[0];
 		villages[j] = {
 			id: villageId,
 			wall: intVillageWall,
 			distance: parseFloat(villageDist),
 			lastAttack: lastAttack,
 			farmA: {
-				element: plunderLine[8].firstElementChild,
-				isLocked: plunderLine[8].firstElementChild.classList.contains("start_locked")
+				element: farmA,
+				isLocked: checkFarmLocked(farmA)
 			},
 			farmB: {
-				element: plunderLine[9].firstElementChild,
-				isLocked: plunderLine[9].firstElementChild.classList.contains("start_locked")
+				element: farmB,
+				isLocked: checkFarmLocked(farmB)
 			},
 			farmC: {
-				element: plunderLine[10].firstElementChild,
-				isLocked: plunderLine[10].firstElementChild.classList.contains("start_locked")
+				element: farmC,
+				isLocked: checkFarmLocked(farmC)
 			},
 			line: plunderTableLines[i]
 		}
 		j++;
 	}
 	return villages;
+}
+
+function checkFarmLocked(farmElement) {
+	if (farmElement == null || typeof farmElement === 'undefined'){
+		return false;
+	}
+	return farmElement.classList.contains("start_locked");
 }
 
 async function startFarming(farmSettings) {
