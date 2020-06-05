@@ -5,7 +5,7 @@
 // @namespace https://github.com/pingudiogo
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 3.0.0
+// @version 3.0.1
 // @updateURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // ==/UserScript==
@@ -501,7 +501,7 @@ function getVillages() {
 
 function checkFarmLocked(farmElement) {
 	if (farmElement == null || typeof farmElement === 'undefined'){
-		return false;
+		return true;
 	}
 	return farmElement.classList.contains("start_locked");
 }
