@@ -5,12 +5,12 @@
 // @namespace https://github.com/pingudiogo
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 3.0.1
+// @version 3.1.0
 // @updateURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // ==/UserScript==
 
-var farmSettingsVersion = "1.0";
+var farmSettingsVersion = "1.1";
 var error = false;
 var assetVersion = TribalWars.getGameData().version.split(" ")[0];
 var assetUrl = "https://dspt.innogamescdn.com/asset/";
@@ -39,8 +39,8 @@ function createModelsSettings() {
 		modelsSettings[i].model = String.fromCharCode(97 + i);
 		modelsSettings[i].maxWall = 0;
 		modelsSettings[i].maxDistance = 0;
-		modelsSettings[i].fullResources = true;
-		modelsSettings[i].emptyResources = true;
+		modelsSettings[i].fullLoot = true;
+		modelsSettings[i].partialLoot = true;
 		modelsSettings[i].reportColor = {
 			blue: false,
 			green: false,
@@ -73,7 +73,7 @@ function patchFarmSettings(farmSettings) {
 		if (setting == "modelsSettings") {
 			var newModelsSettings = newFarmSettings[setting];
 			var modelsSettings = farmSettings[setting];
-			for (var i = 0; i<3;i++) {
+			for (var i = 0; i < 3; i++) {
 				var newModelSettings = newModelsSettings[i];
 				var modelSettings = modelsSettings[i];
 				for (var modelSetting in newModelSettings) {
@@ -131,8 +131,8 @@ function updateFarmSettings(farmSettings) {
 			return;
 		}
 		modelSettings.maxDistance = distance;
-		modelSettings.fullResources = inputsRow.querySelector('input[name="fullResources"]').checked;
-		modelSettings.emptyResources = inputsRow.querySelector('input[name="emptyResources"]').checked;
+		modelSettings.fullLoot = inputsRow.querySelector('input[name="fullLoot"]').checked;
+		modelSettings.partialLoot = inputsRow.querySelector('input[name="partialLoot"]').checked;
 
 		for (var color in reportColor) {
 			modelSettings.reportColor[color] = inputsRow.querySelector('input[name="' + color + 'Attack"]').checked;
@@ -378,9 +378,9 @@ function createSettingsForm(farmSettings) {
 
 		var fullResInput = document.createElement("input");
 		fullResInput.setAttribute('type', "checkbox");
-		fullResInput.setAttribute('name', "fullResources");
+		fullResInput.setAttribute('name', "fullLoot");
 		fullResInput.setAttribute('size', "3");
-		fullResInput.checked = modelSettings.fullResources;
+		fullResInput.checked = modelSettings.fullLoot;
 		fullResTd.appendChild(fullResInput);
 
 		var emptyResTd = document.createElement("td");
@@ -389,9 +389,9 @@ function createSettingsForm(farmSettings) {
 
 		var emptyResInput = document.createElement("input");
 		emptyResInput.setAttribute('type', "checkbox");
-		emptyResInput.setAttribute('name', "emptyResources");
+		emptyResInput.setAttribute('name', "partialLoot");
 		emptyResInput.setAttribute('size', "3");
-		emptyResInput.checked = modelSettings.emptyResources;
+		emptyResInput.checked = modelSettings.partialLoot;
 		emptyResTd.appendChild(emptyResInput);
 
 		for (var color in reportColor) {
@@ -457,6 +457,15 @@ function getVillages() {
 		}
 		var villageId = plunderTableLines[i].id;
 		var plunderLine = plunderTableLines[i].getElementsByTagName('td');
+		var maxLoot = "none";
+		var maxLootImg = plunderLine[2].firstElementChild;
+		if (maxLootImg != null) {
+			if (maxLootImg.getAttribute("src").includes("0.png")) {
+				maxLoot = "partial";
+			} else if (maxLootImg.getAttribute("src").includes("1.png")) {
+				maxLoot = "full";
+			}
+		}
 		var villageWall = plunderLine[6].textContent;
 		var villageDist = plunderLine[7].textContent;
 		var intVillageWall;
@@ -477,6 +486,7 @@ function getVillages() {
 		var farmC = plunderTableLines[i].getElementsByClassName("farm_icon_c")[0];
 		villages[j] = {
 			id: villageId,
+			maxLoot: maxLoot,
 			wall: intVillageWall,
 			distance: parseFloat(villageDist),
 			lastAttack: lastAttack,
@@ -500,7 +510,7 @@ function getVillages() {
 }
 
 function checkFarmLocked(farmElement) {
-	if (farmElement == null || typeof farmElement === 'undefined'){
+	if (farmElement == null || typeof farmElement === 'undefined') {
 		return true;
 	}
 	return farmElement.classList.contains("start_locked");
@@ -581,6 +591,12 @@ function getModelCompat(village, modelSettings) {
 		return -1;
 	}
 	if (!modelSettings.reportColor[village.lastAttack]) {
+		return -1;
+	}
+	if (village.maxLoot == "full" && !modelSettings.fullLoot) {
+		return -1;
+	}
+	if (village.maxLoot == "partial" && !modelSettings.partialLoot) {
 		return -1;
 	}
 	var farm;
