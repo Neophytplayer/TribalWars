@@ -5,7 +5,7 @@
 // @namespace https://github.com/pingudiogo
 // @include https://*screen=map*
 // @icon https://dspt.innogamescdn.com/asset/49a2a1f/graphic/icons/map2.png
-// @version 0.0.1
+// @version 0.0.2
 // @updateURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/mapTools.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/mapTools.js
 // ==/UserScript==
@@ -25,7 +25,7 @@ function run() {
 function applyMapFilters(villages) {
     for (var villageNum in villages) {
         var village = TWMap.villages[villageNum]
-        if (village.bonus_id != 5) {
+        if (village.bonus_id != 5 || village.owner != 0) {
             var villageElement = document.getElementById('map_village_' + village.id);
             if (villageElement != null) {
                 villageElement.style.visibility = 'hidden';
