@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         TW - Cunhar moedas
-// @version      0.1
-// @description  Script para cunhar moedas automaticamente
+// @name         Mass Mint
+// @version      0.2
+// @description  Script to mass mint coins
 // @author       Pengu
-// @match        https://*.tribalwars.*/game.php?village=*&screen=snob
+// @include      https://*.tribalwars.*/game.php?village=*&screen=snob&mode=coin*
 // @grant        none
 // ==/UserScript==
 
@@ -20,6 +20,5 @@
         makeMaximumAmount();
     }
 
-    console.log("Atualizando a página em 60 segundos");
     setInterval(function() {window.location.reload();}, 1800000);
 })();
