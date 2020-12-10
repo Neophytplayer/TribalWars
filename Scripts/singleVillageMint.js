@@ -5,6 +5,7 @@
 // @author       Pengu
 // @include      https://*.tribalwars.*/game.php?village=*&screen=snob&mode=train*
 // @include      https://*.tribalwars.*/game.php?village=*&screen=snob
+// @include      https://*.tribalwars.*/game.php?screen=snob&village=*
 // @grant        none
 // ==/UserScript==
 
@@ -17,5 +18,5 @@
         document.getElementsByClassName("btn btn-default")[0].click();
     }
 
-    setInterval(function() {window.location.reload();}, 1800000);
+    setInterval(function() {window.location.reload();}, 180000);
 })();
