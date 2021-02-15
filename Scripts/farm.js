@@ -5,7 +5,7 @@
 // @namespace https://github.com/pingudiogo
 // @include https://*screen=am_farm*
 // @icon https://dspt.innogamescdn.com/asset/70e1acd/graphic/icons/farm_assistent.png
-// @version 3.1.0
+// @version 3.2.0
 // @updateURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // @downloadURL https://github.com/pingudiogo/TribalWars/raw/master/Scripts/farm.js
 // ==/UserScript==
@@ -14,6 +14,10 @@ var farmSettingsVersion = "1.1";
 var error = false;
 var assetVersion = TribalWars.getGameData().version.split(" ")[0];
 var assetUrl = "https://dspt.innogamescdn.com/asset/";
+var farmingStatus = "uninitialized";
+var statusMessage = "";
+
+var possibleStatus = ["uninitialized", "setup", "farming", "stopped"]
 
 var reportColor = {
 	blue: "/graphic/dots/blue.png",
@@ -27,9 +31,16 @@ var reportColor = {
 run();
 
 function run() {
+	setStatus("setup","Started setup");
 	var farmSettings = loadSettings();
 	createSettingsForm(farmSettings);
 	startFarming(farmSettings);
+}
+
+function setStatus(status, message) {
+	farmingStatus = status;
+	statusMessage = message;
+	console.log("Status: \'" + farmingStatus + "\', Message: \'" + statusMessage + "\'");
 }
 
 function createModelsSettings() {
@@ -92,6 +103,7 @@ function patchFarmSettings(farmSettings) {
 }
 
 function loadSettings() {
+	setStatus("setup","Loading settings");
 	var farmSettings = getFarmSettings();
 	if (farmSettings == null) {
 		console.log("Creating farm settings!");
@@ -102,6 +114,14 @@ function loadSettings() {
 	}
 	saveFarmSettings(farmSettings);
 	return farmSettings;
+}
+
+function setActive(value, farmSettings) {
+	farmSettings.active = value;
+	saveFarmSettings(farmSettings);
+	if (value && farmingStatus == "stopped") {
+		startFarming(farmSettings);
+	}
 }
 
 function saveFarmSettings(farmSettings) {
@@ -163,6 +183,7 @@ function getFarmSettings() {
 }
 
 function createSettingsForm(farmSettings) {
+	setStatus("setup","Creating settings form");
 	var modelsSettings = farmSettings.modelsSettings;
 	var assTable = document.getElementById('content_value'); //Get farm assistant main table
 	var assTitle = assTable.getElementsByTagName('h3')[0];
@@ -174,6 +195,26 @@ function createSettingsForm(farmSettings) {
 	var fTitle = document.createElement("h4");
 	fTitle.textContent = "AutoFarmer Settings";
 	newDiv.appendChild(fTitle);
+
+	var fActiveDiv = document.createElement("div");
+	fActiveDiv.setAttribute('style', 'display:inline-block; position:absolute; right:3px;');
+	fTitle.appendChild(fActiveDiv);
+
+	var fActiveLabel = document.createElement("label");
+	fActiveLabel.setAttribute('for', 'fActiveInput');
+	fActiveLabel.setAttribute('style', 'padding-right:10px;');
+	fActiveLabel.innerHTML = "On/Off";
+	fActiveDiv.appendChild(fActiveLabel);
+
+	var fActiveCheckBox = document.createElement("input");
+	fActiveCheckBox.setAttribute('id', 'fActiveInput');
+	fActiveCheckBox.setAttribute('type', 'checkbox');
+	fActiveCheckBox.setAttribute('name', 'fActiveInput');
+	fActiveCheckBox.checked = farmSettings.active;
+	fActiveCheckBox.onclick = function() {
+		setActive(fActiveCheckBox.checked, farmSettings);
+	}
+	fActiveDiv.appendChild(fActiveCheckBox);
 
 	var scriptSettings = document.createElement("div")
 	scriptSettings.setAttribute('id', 'scriptSettings');
@@ -517,6 +558,11 @@ function checkFarmLocked(farmElement) {
 }
 
 async function startFarming(farmSettings) {
+	if (!farmSettings.active) {
+		setStatus("stopped","Farming not active");
+		return;
+	}
+	setStatus("farming","Started farming");
 	var f;
 	var villageSwitch = document.getElementById("village_switch_right");
 	if (farmSettings.switchVillages && villageSwitch != null) {
@@ -532,15 +578,23 @@ async function startFarming(farmSettings) {
 	var maxAttempts = 4;
 	var i = 0;
 	do {
+		if (!farmSettings.active) {
+			setStatus("stopped","Farming not active");
+			return;
+		}
 		var villages = getVillages();
 		await farmVillages(villages, farmSettings);
 		i++;
 	} while (villages.length > 0 && !error && i < maxAttempts);
+	setStatus("stopped","Waiting to reload");
 }
 
 async function farmVillages(villages, farmSettings) {
 	var i;
 	for (i = 0; i < villages.length; i++) {
+		if (!farmSettings.active) {
+			return;
+		}
 		var modelChosen = chooseModel(villages[i], farmSettings.modelsSettings);
 		var farm;
 		var isValid = true;
